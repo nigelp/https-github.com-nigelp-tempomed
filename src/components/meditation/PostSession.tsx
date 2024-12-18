@@ -52,7 +52,7 @@ const PostSession = ({
   };
 
   return (
-    <div className="w-[600px] bg-white rounded-xl shadow-lg p-8">
+    <div className="w-full max-w-[600px] bg-white rounded-xl shadow-lg p-4 sm:p-8">
       <Card className="mb-6">
         <div className="p-4">
           <div className="flex justify-between items-center mb-6">
@@ -75,7 +75,7 @@ const PostSession = ({
           </div>
 
           {/* Step content */}
-          <div className="min-h-[400px] flex items-center justify-center">
+          <div className="min-h-[300px] sm:min-h-[400px] flex items-center justify-center">
             {renderStepContent()}
           </div>
 

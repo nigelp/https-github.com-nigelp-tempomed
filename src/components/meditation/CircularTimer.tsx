@@ -14,7 +14,7 @@ const CircularTimer = ({
   isActive = false,
 }: CircularTimerProps) => {
   return (
-    <div className="relative w-[400px] h-[400px] flex items-center justify-center bg-white rounded-full shadow-lg">
+    <div className="relative w-full max-w-[400px] aspect-square flex items-center justify-center bg-white rounded-full shadow-lg">
       {/* Outer circle with progress */}
       <div className="absolute inset-0 rounded-full overflow-hidden">
         <Progress
@@ -24,7 +24,7 @@ const CircularTimer = ({
       </div>
 
       {/* Inner circle with time display */}
-      <div className="relative z-10 w-[380px] h-[380px] rounded-full bg-white flex flex-col items-center justify-center">
+      <div className="relative z-10 w-[95%] h-[95%] rounded-full bg-white flex flex-col items-center justify-center">
         <div
           className={cn(
             "text-6xl font-light transition-colors duration-300",
