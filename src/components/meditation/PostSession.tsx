@@ -51,12 +51,23 @@ const PostSession = ({
     }
   };
 
+  const canProceed = () => {
+    switch (currentStep) {
+      case 1:
+        return !!mood;
+      case 2:
+        return rating > 0;
+      default:
+        return true;
+    }
+  };
+
   return (
-    <div className="w-full max-w-[600px] bg-white rounded-xl shadow-lg p-4 sm:p-8">
+    <div className="w-full max-w-[600px] mx-auto bg-white rounded-xl shadow-lg p-4 sm:p-8">
       <Card className="mb-6">
         <div className="p-4">
           <div className="flex justify-between items-center mb-6">
-            <h2 className="text-2xl font-semibold text-gray-800">
+            <h2 className="text-xl sm:text-2xl font-semibold text-gray-800">
               Post-Session Reflection
             </h2>
             <div className="text-sm text-gray-500">
@@ -75,7 +86,7 @@ const PostSession = ({
           </div>
 
           {/* Step content */}
-          <div className="min-h-[300px] sm:min-h-[400px] flex items-center justify-center">
+          <div className="min-h-[300px] sm:min-h-[400px] flex items-center justify-center px-2 sm:px-4">
             {renderStepContent()}
           </div>
 
@@ -99,6 +110,7 @@ const PostSession = ({
                   onStepChange(currentStep + 1);
                 }
               }}
+              disabled={!canProceed()}
               className="flex items-center gap-2"
             >
               {currentStep === totalSteps ? "Complete" : "Next"}

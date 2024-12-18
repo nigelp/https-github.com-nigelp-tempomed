@@ -108,9 +108,9 @@ const ProgressDashboard = () => {
   }, [user, selectedTimeRange]);
 
   return (
-    <div className="w-full max-w-7xl mx-auto py-8">
-      <div className="flex items-center justify-between mb-8">
-        <h2 className="text-2xl font-semibold text-gray-800">
+    <div className="w-full max-w-7xl mx-auto py-4 sm:py-8 px-4 sm:px-6 lg:px-8">
+      <div className="flex items-center justify-between mb-6 sm:mb-8">
+        <h2 className="text-xl sm:text-2xl font-semibold text-gray-800">
           Meditation Progress
         </h2>
         <div className="flex gap-2">
@@ -122,7 +122,7 @@ const ProgressDashboard = () => {
               onClick={() =>
                 setSelectedTimeRange(range as "week" | "month" | "year")
               }
-              className="capitalize"
+              className="capitalize text-xs sm:text-sm px-2 sm:px-4"
             >
               {range}
             </Button>
@@ -130,16 +130,21 @@ const ProgressDashboard = () => {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-        <div className="space-y-8">
-          <StreakCounter {...streakData} />
-          <MoodTrends
-            moodData={moodData}
-            timeRange={selectedTimeRange}
-            isLoading={isLoading}
-          />
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 lg:gap-8">
+        <div className="space-y-4 sm:space-y-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <StreakCounter {...streakData} />
+            <MoodTrends
+              moodData={moodData}
+              timeRange={selectedTimeRange}
+              isLoading={isLoading}
+            />
+          </div>
+          <Achievements />
         </div>
-        <Achievements />
+        <div className="lg:pl-4">
+          {/* Additional content or charts can go here */}
+        </div>
       </div>
     </div>
   );

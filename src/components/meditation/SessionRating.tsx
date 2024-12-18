@@ -16,16 +16,16 @@ const SessionRating = ({
   const stars = [1, 2, 3, 4, 5];
 
   return (
-    <div className="w-[500px] p-6 bg-white rounded-lg shadow-sm">
+    <div className="w-full max-w-[500px] p-4 sm:p-6 bg-white rounded-lg shadow-sm">
       <h3 className="text-lg font-medium mb-4">Rate your session</h3>
 
-      <div className="flex items-center justify-center gap-2">
+      <div className="flex items-center justify-center gap-1 sm:gap-2 overflow-x-auto py-2">
         {stars.map((star) => (
           <button
             key={star}
             onClick={() => !disabled && onRatingChange(star)}
             className={cn(
-              "p-2 transition-all duration-200 hover:scale-110",
+              "p-1 sm:p-2 transition-all duration-200 hover:scale-110",
               disabled && "cursor-not-allowed opacity-50",
             )}
             disabled={disabled}
@@ -33,7 +33,7 @@ const SessionRating = ({
           >
             <Star
               className={cn(
-                "w-8 h-8",
+                "w-6 h-6 sm:w-8 sm:h-8",
                 star <= rating
                   ? "fill-yellow-400 text-yellow-400"
                   : "text-gray-300",

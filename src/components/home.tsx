@@ -25,15 +25,19 @@ function Home() {
   const [selectedMood, setSelectedMood] = useState("");
   const [sessionRating, setSessionRating] = useState(0);
   const [journalEntry, setJournalEntry] = useState("");
+  const [selectedDuration, setSelectedDuration] = useState(1200); // 20 minutes default
 
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
-    return `${mins.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
+    return `${mins.toString().padStart(2, "0")}:${secs
+      .toString()
+      .padStart(2, "0")}`;
   };
 
-  const handleStart = () => {
-    startSession(1200); // 20 minutes
+  const handleStart = (duration: number = selectedDuration) => {
+    setSelectedDuration(duration);
+    startSession(duration);
   };
 
   const handleStop = () => {
@@ -59,9 +63,9 @@ function Home() {
   };
 
   return (
-    <div className="w-full min-h-screen bg-gray-50 flex items-center justify-center p-4">
+    <div className="w-full min-h-[calc(100vh-4rem)] bg-gray-50 flex items-center justify-center p-4">
       <div className="w-full max-w-7xl mx-auto">
-        <div className="flex flex-col items-center space-y-8">
+        <div className="flex flex-col items-center space-y-6 sm:space-y-8">
           {!showPostSession && (
             <>
               <CircularTimer
@@ -77,6 +81,7 @@ function Home() {
                 onResume={resumeSession}
                 onStop={handleStop}
                 onReset={resetSession}
+                selectedDuration={selectedDuration}
               />
             </>
           )}
