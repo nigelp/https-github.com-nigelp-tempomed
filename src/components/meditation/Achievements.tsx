@@ -1,83 +1,151 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Trophy, Star, Medal, Target, Heart, Brain } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/lib/supabase";
 
 interface Achievement {
   id: string;
   title: string;
   description: string;
-  icon: React.ElementType;
+  icon: string;
+  requirement_type: string;
+  requirement_value: number;
   progress: number;
   isUnlocked: boolean;
 }
 
-interface AchievementsProps {
-  achievements?: Achievement[];
-}
+const iconMap: Record<string, React.ElementType> = {
+  Star,
+  Trophy,
+  Medal,
+  Target,
+  Heart,
+  Brain,
+};
 
-const Achievements = ({
-  achievements = [
-    {
-      id: "1",
-      title: "Early Bird",
-      description: "Complete 5 morning meditations",
-      icon: Star,
-      progress: 3,
-      isUnlocked: false,
-    },
-    {
-      id: "2",
-      title: "Zen Master",
-      description: "Achieve a 10-day streak",
-      icon: Trophy,
-      progress: 7,
-      isUnlocked: false,
-    },
-    {
-      id: "3",
-      title: "Inner Peace",
-      description: "Log 20 calm moods",
-      icon: Heart,
-      progress: 20,
-      isUnlocked: true,
-    },
-    {
-      id: "4",
-      title: "Mindful Explorer",
-      description: "Try 5 different meditation types",
-      icon: Brain,
-      progress: 3,
-      isUnlocked: false,
-    },
-    {
-      id: "5",
-      title: "Consistency King",
-      description: "Meditate for 30 days total",
-      icon: Medal,
-      progress: 15,
-      isUnlocked: false,
-    },
-    {
-      id: "6",
-      title: "Goal Setter",
-      description: "Complete all weekly goals",
-      icon: Target,
-      progress: 5,
-      isUnlocked: false,
-    },
-  ],
-}: AchievementsProps) => {
-  return (
-    <div className="w-[300px] bg-white rounded-lg shadow-sm">
+const Achievements = () => {
+  const { user } = useAuth();
+  const [achievements, setAchievements] = useState<Achievement[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const loadAchievements = async () => {
+      if (!user) return;
+
+      try {
+        setIsLoading(true);
+
+        // Get all achievements
+        const { data: achievementsData, error: achievementsError } =
+          await supabase.from("achievements").select("*");
+
+        if (achievementsError) throw achievementsError;
+
+        // Get user's unlocked achievements
+        const { data: unlockedData, error: unlockedError } = await supabase
+          .from("user_achievements")
+          .select("achievement_id")
+          .eq("user_id", user.id);
+
+        if (unlockedError) throw unlockedError;
+
+        // Calculate progress for each achievement
+        const achievementsWithProgress = await Promise.all(
+          achievementsData.map(async (achievement) => {
+            let progress = 0;
+
+            // Calculate progress based on requirement type
+            switch (achievement.requirement_type) {
+              case "morning_sessions": {
+                const { count } = await supabase
+                  .from("meditation_sessions")
+                  .select("*", { count: "exact" })
+                  .eq("user_id", user.id)
+                  .gte("created_at", new Date().setHours(5, 0, 0, 0))
+                  .lte("created_at", new Date().setHours(12, 0, 0, 0));
+                progress = count || 0;
+                break;
+              }
+              case "streak": {
+                const { data } = await supabase
+                  .from("streaks")
+                  .select("current_streak")
+                  .eq("user_id", user.id)
+                  .single();
+                progress = data?.current_streak || 0;
+                break;
+              }
+              case "mood_count": {
+                const { count } = await supabase
+                  .from("meditation_sessions")
+                  .select("*", { count: "exact" })
+                  .eq("user_id", user.id)
+                  .eq("mood", "Calm");
+                progress = count || 0;
+                break;
+              }
+              case "total_days": {
+                const { count } = await supabase
+                  .from("meditation_sessions")
+                  .select("*", { count: "exact" })
+                  .eq("user_id", user.id);
+                progress = count || 0;
+                break;
+              }
+              // Add other cases as needed
+            }
+
+            return {
+              ...achievement,
+              progress,
+              isUnlocked:
+                unlockedData?.some(
+                  (u) => u.achievement_id === achievement.id,
+                ) || false,
+            };
+          }),
+        );
+
+        setAchievements(achievementsWithProgress);
+      } catch (error) {
+        console.error("Error loading achievements:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadAchievements();
+  }, [user]);
+
+  if (isLoading) {
+    return (
       <Card className="p-6">
-        <div className="flex items-center gap-2 mb-6">
-          <Trophy className="w-5 h-5 text-yellow-500" />
-          <h3 className="text-lg font-medium">Achievements</h3>
+        <div className="animate-pulse space-y-4">
+          <div className="h-6 w-1/3 bg-gray-200 rounded" />
+          <div className="space-y-3">
+            {[1, 2, 3].map((i) => (
+              <div key={i} className="h-20 bg-gray-100 rounded" />
+            ))}
+          </div>
         </div>
+      </Card>
+    );
+  }
 
-        <div className="space-y-4">
-          {achievements.map((achievement) => (
+  return (
+    <Card className="p-6">
+      <div className="flex items-center gap-2 mb-6">
+        <Trophy className="w-5 h-5 text-yellow-500" />
+        <h3 className="text-lg font-medium">Achievements</h3>
+      </div>
+
+      <div className="space-y-4">
+        {achievements.map((achievement) => {
+          const Icon = iconMap[achievement.icon] || Trophy;
+
+          return (
             <div
               key={achievement.id}
               className={`p-3 rounded-lg border ${achievement.isUnlocked ? "bg-green-50 border-green-200" : "bg-gray-50 border-gray-200"}`}
@@ -86,7 +154,7 @@ const Achievements = ({
                 <div
                   className={`p-2 rounded-full ${achievement.isUnlocked ? "bg-green-100 text-green-600" : "bg-gray-200 text-gray-500"}`}
                 >
-                  <achievement.icon className="w-4 h-4" />
+                  <Icon className="w-4 h-4" />
                 </div>
                 <div className="flex-1">
                   <div className="flex items-center justify-between">
@@ -108,22 +176,22 @@ const Achievements = ({
                         <div
                           className="h-full bg-blue-500 transition-all duration-300"
                           style={{
-                            width: `${(achievement.progress / 20) * 100}%`,
+                            width: `${(achievement.progress / achievement.requirement_value) * 100}%`,
                           }}
                         />
                       </div>
                       <div className="text-xs text-gray-500 mt-1">
-                        {achievement.progress}/20
+                        {achievement.progress}/{achievement.requirement_value}
                       </div>
                     </div>
                   )}
                 </div>
               </div>
             </div>
-          ))}
-        </div>
-      </Card>
-    </div>
+          );
+        })}
+      </div>
+    </Card>
   );
 };
 

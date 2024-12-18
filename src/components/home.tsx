@@ -1,89 +1,68 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState } from "react";
+import { useToast } from "@/components/ui/use-toast";
 import CircularTimer from "./meditation/CircularTimer";
 import TimerControls from "./meditation/TimerControls";
 import PostSession from "./meditation/PostSession";
-import ProgressDashboard from "./meditation/ProgressDashboard";
+import { useMeditation } from "@/contexts/MeditationContext";
 
 function Home() {
-  const [isActive, setIsActive] = useState(false);
-  const [isPaused, setIsPaused] = useState(false);
-  const [progress, setProgress] = useState(0);
-  const [showPostSession, setShowPostSession] = useState(false);
-  const [showDashboard, setShowDashboard] = useState(false);
-  const [timeRemaining, setTimeRemaining] = useState(1200); // 20 minutes in seconds
+  const { toast } = useToast();
+  const {
+    isActive,
+    isPaused,
+    timeRemaining,
+    progress,
+    startSession,
+    pauseSession,
+    resumeSession,
+    stopSession,
+    resetSession,
+    completeSession,
+  } = useMeditation();
 
-  // Post-session state
+  const [showPostSession, setShowPostSession] = useState(false);
   const [currentStep, setCurrentStep] = useState(1);
   const [selectedMood, setSelectedMood] = useState("");
   const [sessionRating, setSessionRating] = useState(0);
   const [journalEntry, setJournalEntry] = useState("");
 
-  const formatTime = useCallback((seconds: number) => {
+  const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
     return `${mins.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
-  }, []);
-
-  useEffect(() => {
-    let interval: NodeJS.Timeout | null = null;
-
-    if (isActive && !isPaused) {
-      interval = setInterval(() => {
-        setTimeRemaining((time) => {
-          if (time <= 1) {
-            setIsActive(false);
-            setShowPostSession(true);
-            return 1200; // Reset to 20 minutes
-          }
-          return time - 1;
-        });
-
-        setProgress((prev) => {
-          const newProgress = ((1200 - timeRemaining + 1) / 1200) * 100;
-          return Math.min(newProgress, 100);
-        });
-      }, 1000);
-    }
-
-    return () => {
-      if (interval) clearInterval(interval);
-    };
-  }, [isActive, isPaused, timeRemaining]);
-
-  const handleStart = () => {
-    setIsActive(true);
-    setIsPaused(false);
   };
 
-  const handlePause = () => {
-    setIsPaused(true);
+  const handleStart = () => {
+    startSession(1200); // 20 minutes
   };
 
   const handleStop = () => {
-    setIsActive(false);
-    setIsPaused(false);
-    setProgress(0);
-    setTimeRemaining(1200);
+    stopSession();
     setShowPostSession(true);
   };
 
-  const handleReset = () => {
-    setIsActive(false);
-    setIsPaused(false);
-    setProgress(0);
-    setTimeRemaining(1200);
-  };
-
-  const handlePostSessionComplete = () => {
-    setShowPostSession(false);
-    setShowDashboard(true);
+  const handlePostSessionComplete = async () => {
+    try {
+      await completeSession(selectedMood, sessionRating, journalEntry);
+      setShowPostSession(false);
+      toast({
+        title: "Session completed!",
+        description: "Your meditation session has been saved.",
+      });
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
   };
 
   return (
     <div className="w-full min-h-screen bg-gray-50 flex items-center justify-center p-4">
       <div className="w-full max-w-7xl mx-auto">
         <div className="flex flex-col items-center space-y-8">
-          {!showPostSession && !showDashboard && (
+          {!showPostSession && (
             <>
               <CircularTimer
                 progress={progress}
@@ -94,9 +73,10 @@ function Home() {
                 isActive={isActive}
                 isPaused={isPaused}
                 onStart={handleStart}
-                onPause={handlePause}
+                onPause={pauseSession}
+                onResume={resumeSession}
                 onStop={handleStop}
-                onReset={handleReset}
+                onReset={resetSession}
               />
             </>
           )}
@@ -112,24 +92,6 @@ function Home() {
               onRatingChange={setSessionRating}
               journalEntry={journalEntry}
               onJournalChange={setJournalEntry}
-            />
-          )}
-
-          {showDashboard && (
-            <ProgressDashboard
-              streakData={{
-                currentStreak: 3,
-                longestStreak: 7,
-                daysThisWeek: 4,
-                totalDays: 15,
-              }}
-              moodData={[
-                { date: "2024-01-01", mood: "Calm", intensity: 4 },
-                { date: "2024-01-02", mood: "Happy", intensity: 5 },
-                { date: "2024-01-03", mood: "Stressed", intensity: 2 },
-                { date: "2024-01-04", mood: "Peaceful", intensity: 4 },
-                { date: "2024-01-05", mood: "Grateful", intensity: 5 },
-              ]}
             />
           )}
         </div>

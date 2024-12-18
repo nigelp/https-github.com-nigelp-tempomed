@@ -1,58 +1,114 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Card } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { BarChart3, CalendarDays, Trophy } from "lucide-react";
 import StreakCounter from "./StreakCounter";
 import MoodTrends from "./MoodTrends";
 import Achievements from "./Achievements";
+import { useMeditation } from "@/contexts/MeditationContext";
+import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/lib/supabase";
 
-interface ProgressDashboardProps {
-  streakData?: {
-    currentStreak: number;
-    longestStreak: number;
-    daysThisWeek: number;
-    totalDays: number;
-  };
-  moodData?: {
-    date: string;
-    mood: string;
-    intensity: number;
-  }[];
-  achievements?: {
-    id: string;
-    title: string;
-    description: string;
-    icon: React.ElementType;
-    progress: number;
-    isUnlocked: boolean;
-  }[];
-  selectedTimeRange?: "week" | "month" | "year";
-  onTimeRangeChange?: (range: "week" | "month" | "year") => void;
-  isLoading?: boolean;
+interface StreakData {
+  currentStreak: number;
+  longestStreak: number;
+  daysThisWeek: number;
+  totalDays: number;
 }
 
-const ProgressDashboard = ({
-  streakData = {
-    currentStreak: 3,
-    longestStreak: 7,
-    daysThisWeek: 4,
-    totalDays: 15,
-  },
-  moodData = [
-    { date: "2024-01-01", mood: "Calm", intensity: 4 },
-    { date: "2024-01-02", mood: "Happy", intensity: 5 },
-    { date: "2024-01-03", mood: "Stressed", intensity: 2 },
-    { date: "2024-01-04", mood: "Peaceful", intensity: 4 },
-    { date: "2024-01-05", mood: "Grateful", intensity: 5 },
-  ],
-  achievements = [],
-  selectedTimeRange = "week",
-  onTimeRangeChange = () => {},
-  isLoading = false,
-}: ProgressDashboardProps) => {
+interface MoodData {
+  date: string;
+  mood: string;
+  intensity: number;
+}
+
+const ProgressDashboard = () => {
+  const { user } = useAuth();
+  const { recentSessions } = useMeditation();
+  const [selectedTimeRange, setSelectedTimeRange] = useState<
+    "week" | "month" | "year"
+  >("week");
+  const [streakData, setStreakData] = useState<StreakData>({
+    currentStreak: 0,
+    longestStreak: 0,
+    daysThisWeek: 0,
+    totalDays: 0,
+  });
+  const [moodData, setMoodData] = useState<MoodData[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const loadData = async () => {
+      if (!user) return;
+
+      setIsLoading(true);
+      try {
+        // Load streak data
+        const { data: streakData } = await supabase
+          .from("streaks")
+          .select("*")
+          .eq("user_id", user.id)
+          .single();
+
+        // Calculate days this week
+        const startOfWeek = new Date();
+        startOfWeek.setDate(startOfWeek.getDate() - startOfWeek.getDay());
+        const { data: weekSessions } = await supabase
+          .from("meditation_sessions")
+          .select("created_at")
+          .eq("user_id", user.id)
+          .gte("created_at", startOfWeek.toISOString())
+          .order("created_at", { ascending: false });
+
+        // Get total days meditated
+        const { count: totalDays } = await supabase
+          .from("meditation_sessions")
+          .select("created_at", { count: "exact" })
+          .eq("user_id", user.id);
+
+        setStreakData({
+          currentStreak: streakData?.current_streak || 0,
+          longestStreak: streakData?.longest_streak || 0,
+          daysThisWeek: weekSessions?.length || 0,
+          totalDays: totalDays || 0,
+        });
+
+        // Load mood data based on time range
+        const rangeStart = new Date();
+        if (selectedTimeRange === "week") {
+          rangeStart.setDate(rangeStart.getDate() - 7);
+        } else if (selectedTimeRange === "month") {
+          rangeStart.setMonth(rangeStart.getMonth() - 1);
+        } else {
+          rangeStart.setFullYear(rangeStart.getFullYear() - 1);
+        }
+
+        const { data: moodSessions } = await supabase
+          .from("meditation_sessions")
+          .select("created_at, mood, rating")
+          .eq("user_id", user.id)
+          .gte("created_at", rangeStart.toISOString())
+          .order("created_at", { ascending: true });
+
+        setMoodData(
+          moodSessions?.map((session) => ({
+            date: new Date(session.created_at).toISOString().split("T")[0],
+            mood: session.mood || "Unknown",
+            intensity: session.rating || 3,
+          })) || [],
+        );
+      } catch (error) {
+        console.error("Error loading progress data:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadData();
+  }, [user, selectedTimeRange]);
+
   return (
-    <div className="w-[1000px] bg-white rounded-xl shadow-lg p-8">
+    <div className="w-full max-w-7xl mx-auto py-8">
       <div className="flex items-center justify-between mb-8">
         <h2 className="text-2xl font-semibold text-gray-800">
           Meditation Progress
@@ -64,7 +120,7 @@ const ProgressDashboard = ({
               variant={selectedTimeRange === range ? "default" : "outline"}
               size="sm"
               onClick={() =>
-                onTimeRangeChange(range as "week" | "month" | "year")
+                setSelectedTimeRange(range as "week" | "month" | "year")
               }
               className="capitalize"
             >
@@ -74,7 +130,7 @@ const ProgressDashboard = ({
         </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         <div className="space-y-8">
           <StreakCounter {...streakData} />
           <MoodTrends
@@ -83,7 +139,7 @@ const ProgressDashboard = ({
             isLoading={isLoading}
           />
         </div>
-        <Achievements achievements={achievements} />
+        <Achievements />
       </div>
     </div>
   );

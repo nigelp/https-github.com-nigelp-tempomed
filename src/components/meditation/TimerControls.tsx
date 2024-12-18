@@ -12,6 +12,7 @@ interface TimerControlsProps {
   isPaused?: boolean;
   onStart?: () => void;
   onPause?: () => void;
+  onResume?: () => void;
   onStop?: () => void;
   onReset?: () => void;
 }
@@ -21,6 +22,7 @@ const TimerControls = ({
   isPaused = false,
   onStart = () => {},
   onPause = () => {},
+  onResume = () => {},
   onStop = () => {},
   onReset = () => {},
 }: TimerControlsProps) => {
@@ -31,7 +33,7 @@ const TimerControls = ({
         <TooltipTrigger asChild>
           {!isActive || isPaused ? (
             <Button
-              onClick={onStart}
+              onClick={isPaused ? onResume : onStart}
               size="lg"
               className="w-16 h-16 rounded-full bg-blue-500 hover:bg-blue-600 transition-colors duration-200"
             >
@@ -49,7 +51,11 @@ const TimerControls = ({
         </TooltipTrigger>
         <TooltipContent>
           <p>
-            {!isActive || isPaused ? "Start meditation" : "Pause meditation"}
+            {!isActive
+              ? "Start meditation"
+              : isPaused
+                ? "Resume meditation"
+                : "Pause meditation"}
           </p>
         </TooltipContent>
       </Tooltip>

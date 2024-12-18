@@ -1,22 +1,18 @@
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Timer, BarChart2, Trophy, LogOut, Menu } from "lucide-react";
+import { Timer, BarChart2, Trophy, User, Menu } from "lucide-react";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { useState } from "react";
 
 const Navbar = () => {
   const location = useLocation();
-  const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
-
-  const handleSignOut = () => {
-    navigate("/");
-  };
 
   const navItems = [
     { path: "/meditate", icon: Timer, label: "Meditate" },
     { path: "/progress", icon: BarChart2, label: "Progress" },
     { path: "/achievements", icon: Trophy, label: "Achievements" },
+    { path: "/profile", icon: User, label: "Profile" },
   ];
 
   const NavLinks = ({ onClick = () => {} }) => (
@@ -53,41 +49,19 @@ const Navbar = () => {
             </div>
           </div>
 
-          <div className="flex items-center">
-            <Button
-              variant="ghost"
-              className="hidden md:flex items-center gap-2"
-              onClick={handleSignOut}
-            >
-              <LogOut className="w-4 h-4" />
-              Sign Out
-            </Button>
-
-            {/* Mobile Menu Button */}
-            <Sheet open={isOpen} onOpenChange={setIsOpen}>
-              <SheetTrigger asChild>
-                <Button variant="ghost" size="icon" className="md:hidden">
-                  <Menu className="h-5 w-5" />
-                </Button>
-              </SheetTrigger>
-              <SheetContent side="right" className="w-[240px] sm:w-[280px]">
-                <div className="flex flex-col gap-4 py-4">
-                  <NavLinks onClick={() => setIsOpen(false)} />
-                  <Button
-                    variant="ghost"
-                    className="flex items-center gap-2 justify-start"
-                    onClick={() => {
-                      setIsOpen(false);
-                      handleSignOut();
-                    }}
-                  >
-                    <LogOut className="w-4 h-4" />
-                    Sign Out
-                  </Button>
-                </div>
-              </SheetContent>
-            </Sheet>
-          </div>
+          {/* Mobile Menu Button */}
+          <Sheet open={isOpen} onOpenChange={setIsOpen}>
+            <SheetTrigger asChild>
+              <Button variant="ghost" size="icon" className="md:hidden">
+                <Menu className="h-5 w-5" />
+              </Button>
+            </SheetTrigger>
+            <SheetContent side="right" className="w-[240px] sm:w-[280px]">
+              <div className="flex flex-col gap-4 py-4">
+                <NavLinks onClick={() => setIsOpen(false)} />
+              </div>
+            </SheetContent>
+          </Sheet>
         </div>
       </div>
     </nav>
