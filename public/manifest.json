@@ -1,0 +1,16 @@
+{
+  "name": "Mindful Meditation Timer",
+  "short_name": "Mindful",
+  "description": "A mindfulness-focused meditation timer and wellness journal",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#ffffff",
+  "icons": [
+    {
+      "src": "/vite.svg",
+      "sizes": "192x192",
+      "type": "image/svg+xml"
+    }
+  ]
+}
