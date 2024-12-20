@@ -59,8 +59,8 @@ const LoginPage = () => {
           </h1>
           <p className="text-gray-500">
             {isSignUp
-              ? "Start your mindfulness journey"
-              : "Continue your mindfulness journey"}
+              ? "Start your meditation journey"
+              : "Explore your meditation journey"}
           </p>
         </div>
 

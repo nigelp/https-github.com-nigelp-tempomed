@@ -1,6 +1,6 @@
 {
-  "name": "Mindful Meditation Timer",
-  "short_name": "Mindful",
+  "name": "Reflection Meditation Monitor",
+  "short_name": "Reflection",
   "description": "A mindfulness-focused meditation timer and wellness journal",
   "start_url": "/",
   "display": "standalone",

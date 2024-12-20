@@ -40,7 +40,7 @@ const Navbar = () => {
               to="/meditate"
               className="flex items-center text-xl font-bold text-blue-600"
             >
-              Mindful
+              Reflection
             </Link>
 
             {/* Desktop Navigation */}
