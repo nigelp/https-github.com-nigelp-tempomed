@@ -24,27 +24,32 @@ const MoodTrends = ({
   isLoading = false,
 }: MoodTrendsProps) => {
   // Calculate mood distribution
-  const moodCounts = moodData.reduce(
+  const moodCounts = moodData?.reduce(
     (acc, { mood }) => {
       acc[mood] = (acc[mood] || 0) + 1;
       return acc;
     },
     {} as Record<string, number>,
-  );
+  ) || {};
 
   // Find dominant mood
-  const dominantMood = Object.entries(moodCounts).reduce(
+  const dominantMood = Object.entries(moodCounts)?.reduce(
     (a, b) => (b[1] > a[1] ? b : a),
     ["", 0],
-  )[0];
+  )[0] || "No data";
 
   // Calculate average intensity
-  const avgIntensity =
+  const avgIntensity = moodData?.length
+    ? (
     moodData.reduce((sum, { intensity }) => sum + intensity, 0) /
-    moodData.length;
+    moodData.length
+    )
+    : 0;
+
+  const hasData = moodData?.length > 0;
 
   return (
-    <div className="w-[400px] bg-white rounded-lg shadow-sm">
+    <div className="w-full bg-white rounded-lg shadow-sm overflow-hidden">
       <Card className="p-6">
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-2">
@@ -58,14 +63,14 @@ const MoodTrends = ({
           <div className="h-[200px] flex items-center justify-center">
             <div className="animate-pulse text-gray-400">Loading trends...</div>
           </div>
-        ) : (
+        ) : hasData ? (
           <div className="space-y-6">
             {/* Mood Chart Visualization */}
-            <div className="h-[150px] flex items-end justify-between gap-2">
+            <div className="h-[150px] flex items-end justify-between gap-1 sm:gap-2">
               {moodData.map(({ date, intensity }, index) => (
                 <div key={date} className="flex flex-col items-center gap-1">
-                  <div
-                    className="w-8 bg-blue-500 rounded-t transition-all duration-300"
+                  <div 
+                    className="w-4 sm:w-8 bg-blue-500 rounded-t transition-all duration-300"
                     style={{ height: `${(intensity / 5) * 100}px` }}
                   />
                   <span className="text-xs text-gray-500 rotate-45 origin-top-left">
@@ -98,6 +103,11 @@ const MoodTrends = ({
                 </p>
               </div>
             </div>
+          </div>
+        ) : (
+          <div className="h-[200px] flex items-center justify-center">
+            <div className="text-gray-500 text-center">No mood data available for this {timeRange}.<br/>
+            Complete meditation sessions to see your trends.</div>
           </div>
         )}
       </Card>

@@ -5,7 +5,7 @@
     "lib": ["ES2020", "DOM", "DOM.Iterable"],
     "module": "ESNext",
     "skipLibCheck": true,
-    "noEmitOnError": false,
+    "noEmitOnError": true,
 
     "moduleResolution": "bundler",
     "allowImportingTsExtensions": true,
@@ -14,7 +14,7 @@
     "noEmit": true,
     "jsx": "react-jsx",
 
-    "strict": false,
+    "strict": true,
     "paths": {
       "@/*": ["./src/*"]
     }

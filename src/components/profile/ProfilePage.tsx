@@ -213,37 +213,39 @@ const ProfilePage = () => {
       <div className="space-y-6">
         {/* Avatar Section */}
         <Card className="p-6">
-          <div className="flex items-center gap-6">
-            <div className="relative">
-              <Avatar className="w-24 h-24">
-                <AvatarImage src={profile.avatar_url} />
-                <AvatarFallback>
-                  {profile.full_name
-                    ?.split(" ")
-                    .map((n) => n[0])
-                    .join("") || user?.email?.[0].toUpperCase()}
-                </AvatarFallback>
-              </Avatar>
-              <Label
-                htmlFor="avatar-upload"
-                className="absolute bottom-0 right-0 p-1 bg-blue-500 text-white rounded-full cursor-pointer hover:bg-blue-600 transition-colors"
-              >
-                <Camera className="w-4 h-4" />
-              </Label>
-              <Input
-                id="avatar-upload"
-                type="file"
-                accept="image/*"
-                className="hidden"
-                onChange={handleAvatarUpload}
-                disabled={isSaving}
-              />
-            </div>
-            <div>
-              <h3 className="font-medium">
-                {profile.full_name || "Add your name"}
-              </h3>
-              <p className="text-sm text-gray-500">{user?.email}</p>
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6">
+            <div className="flex items-center gap-4 w-full sm:w-auto">
+              <div className="relative">
+                <Avatar className="w-20 h-20 sm:w-24 sm:h-24">
+                  <AvatarImage src={profile.avatar_url} />
+                  <AvatarFallback>
+                    {profile.full_name
+                      ?.split(" ")
+                      .map((n) => n[0])
+                      .join("") || user?.email?.[0].toUpperCase()}
+                  </AvatarFallback>
+                </Avatar>
+                <Label
+                  htmlFor="avatar-upload"
+                  className="absolute bottom-0 right-0 p-1.5 bg-blue-500 text-white rounded-full cursor-pointer hover:bg-blue-600 transition-colors"
+                >
+                  <Camera className="w-4 h-4" />
+                </Label>
+                <Input
+                  id="avatar-upload"
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={handleAvatarUpload}
+                  disabled={isSaving}
+                />
+              </div>
+              <div className="flex-1 min-w-0">
+                <h3 className="font-medium truncate">
+                  {profile.full_name || "Add your name"}
+                </h3>
+                <p className="text-sm text-gray-500 truncate">{user?.email}</p>
+              </div>
             </div>
           </div>
         </Card>

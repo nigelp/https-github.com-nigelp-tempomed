@@ -1,12 +1,6 @@
 import React from "react";
 import { Button } from "@/components/ui/button";
-import { Play, Pause, Square, RefreshCw, Clock } from "lucide-react";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-  TooltipProvider,
-} from "@/components/ui/tooltip";
+import { Play, Pause, Square, RefreshCw, Clock, ChevronDown } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -53,17 +47,16 @@ const TimerControls = ({
     DURATION_PRESETS[2];
 
   return (
-    <TooltipProvider>
-      <div className="flex flex-col items-center gap-4 p-4 bg-white rounded-lg shadow-sm w-full max-w-[300px] sm:max-w-[400px]">
+      <div className="flex flex-col items-center gap-6 p-4 bg-white rounded-lg shadow-sm w-full max-w-[300px] sm:max-w-[400px]">
         {!isActive && (
           <DropdownMenu>
-            <DropdownMenuTrigger asChild>
+            <DropdownMenuTrigger asChild className="relative">
               <Button
                 variant="outline"
                 className="w-full flex items-center justify-center gap-2 text-sm sm:text-base"
               >
-                <Clock className="h-4 w-4" />
-                {formatDuration(selectedPreset.value)}
+                <Clock className="h-4 w-4 mr-1" />
+                {formatDuration(selectedPreset.value)} <ChevronDown className="h-4 w-4 ml-1" />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent className="w-full min-w-[200px]">
@@ -80,10 +73,9 @@ const TimerControls = ({
           </DropdownMenu>
         )}
 
-        <div className="flex items-center justify-center gap-3 sm:gap-4">
-          {/* Start/Pause Button */}
-          <Tooltip>
-            <TooltipTrigger asChild>
+        <div className="flex flex-col items-center gap-4">
+          <div className="flex items-center justify-center gap-6 sm:gap-8">
+            {/* Start/Pause Button */}
               {!isActive || isPaused ? (
                 <Button
                   onClick={() =>
@@ -103,22 +95,9 @@ const TimerControls = ({
                   <Pause className="h-6 w-6 sm:h-8 sm:w-8" />
                 </Button>
               )}
-            </TooltipTrigger>
-            <TooltipContent>
-              <p>
-                {!isActive
-                  ? "Start meditation"
-                  : isPaused
-                    ? "Resume meditation"
-                    : "Pause meditation"}
-              </p>
-            </TooltipContent>
-          </Tooltip>
 
           {/* Stop Button - Only shown when timer is active */}
           {isActive && (
-            <Tooltip>
-              <TooltipTrigger asChild>
                 <Button
                   onClick={onStop}
                   size="lg"
@@ -127,16 +106,9 @@ const TimerControls = ({
                 >
                   <Square className="h-5 w-5 sm:h-6 sm:w-6" />
                 </Button>
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>End meditation</p>
-              </TooltipContent>
-            </Tooltip>
           )}
 
           {/* Reset Button - Always visible */}
-          <Tooltip>
-            <TooltipTrigger asChild>
               <Button
                 onClick={onReset}
                 size="lg"
@@ -145,14 +117,14 @@ const TimerControls = ({
               >
                 <RefreshCw className="h-5 w-5 sm:h-6 sm:w-6" />
               </Button>
-            </TooltipTrigger>
-            <TooltipContent>
-              <p>Reset timer</p>
-            </TooltipContent>
-          </Tooltip>
+          </div>
+          <div className="flex items-center justify-center gap-6 sm:gap-8 text-sm font-semibold">
+            <span className="w-16 text-center text-blue-600">{!isActive ? "Start" : isPaused ? "Resume" : "Pause"}</span>
+            {isActive && <span className="w-12 text-center text-red-600">Stop</span>}
+            <span className="w-12 text-center text-gray-600">Reset</span>
+          </div>
         </div>
       </div>
-    </TooltipProvider>
   );
 };
 

@@ -21,7 +21,7 @@ const JournalEntry = ({
   const characterCount = value.length;
 
   return (
-    <div className="w-[500px] p-6 bg-white rounded-lg shadow-sm">
+    <div className="w-full max-w-[500px] p-4 sm:p-6 bg-white rounded-lg shadow-sm border border-gray-100">
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
           <BookOpen className="w-5 h-5 text-blue-500" />
@@ -36,7 +36,7 @@ const JournalEntry = ({
         value={value}
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder}
-        className="min-h-[120px] resize-none transition-colors duration-200"
+        className="min-h-[120px] sm:min-h-[150px] resize-none transition-colors duration-200 focus:ring-2 focus:ring-blue-100 border-gray-200"
         maxLength={maxLength}
         disabled={disabled}
       />
@@ -47,13 +47,13 @@ const JournalEntry = ({
           size="sm"
           onClick={() => onChange("")}
           disabled={disabled || !value}
-          className="text-sm"
+          className="text-sm hover:bg-gray-50"
         >
           Clear
         </Button>
       </div>
 
-      <p className="text-sm text-gray-500 mt-2">
+      <p className="text-xs sm:text-sm text-gray-500 mt-4 italic">
         Optional: Use this space to reflect on your meditation experience
       </p>
     </div>

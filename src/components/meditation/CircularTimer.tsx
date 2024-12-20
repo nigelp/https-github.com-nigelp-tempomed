@@ -14,26 +14,27 @@ const CircularTimer = ({
   isActive = false,
 }: CircularTimerProps) => {
   return (
-    <div className="relative w-full max-w-[300px] sm:max-w-[400px] aspect-square flex items-center justify-center bg-white rounded-full shadow-lg">
+    <div className="flex flex-col items-center gap-4 w-full">
+    <div className="relative w-[85vw] max-w-[320px] sm:w-full sm:max-w-[400px] aspect-square flex items-center justify-center bg-white rounded-full shadow-lg">
       {/* Outer circle with progress */}
       <div className="absolute inset-0 rounded-full overflow-hidden">
-        <Progress
+        <Progress 
           value={progress}
           className="h-full w-full rounded-full transition-all duration-1000 ease-in-out"
         />
       </div>
 
       {/* Inner circle with time display */}
-      <div className="relative z-10 w-[95%] h-[95%] rounded-full bg-white flex flex-col items-center justify-center">
+      <div className="relative z-10 w-[92%] h-[92%] rounded-full bg-white flex flex-col items-center justify-center">
         <div
           className={cn(
-            "text-4xl sm:text-6xl font-light transition-colors duration-300",
+            "text-[min(15vw,4.5rem)] sm:text-[min(12vw,5rem)] font-light transition-colors duration-300",
             isActive ? "text-blue-600" : "text-gray-700",
           )}
         >
           {timeRemaining}
         </div>
-        <div className="text-base sm:text-lg text-gray-500 mt-2">
+        <div className="text-[min(5vw,1.25rem)] sm:text-[min(4vw,1.5rem)] text-gray-500 mt-1 sm:mt-2">
           {isActive ? "Meditating" : "Ready to begin"}
         </div>
       </div>
@@ -42,6 +43,7 @@ const CircularTimer = ({
       {isActive && (
         <div className="absolute inset-0 rounded-full animate-pulse bg-blue-100 opacity-20" />
       )}
+    </div>
     </div>
   );
 };
